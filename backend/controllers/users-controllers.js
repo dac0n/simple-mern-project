@@ -19,6 +19,7 @@ const getUsers = async (req, res, next) => {
 const signup = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+
     return next(
       new HttpError("Invalid inputs passed, please check your data.", 422)
     );
@@ -45,8 +46,7 @@ const signup = async (req, res, next) => {
   const createdUser = new User({
     name,
     email,
-    image:
-      "https://www.failbettergames.com/wp-content/uploads/2014/05/avatar_male3.png",
+    image: req.file.path,
     password,
     places: []
   });

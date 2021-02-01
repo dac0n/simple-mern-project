@@ -5,8 +5,7 @@ const Place = require("../models/place");
 const getCoordsForAddress = require("../util/location");
 const User = require("../models/user");
 const mongoose = require("mongoose");
-const mongooseUniqueValidator = require("mongoose-unique-validator");
-
+const fs = require('fs');
 
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -77,8 +76,7 @@ const createPlace = async (req, res, next) => {
     description,
     address,
     location: coordinates,
-    image:
-      "https://i.pinimg.com/564x/52/99/9b/52999b53e282be471466b424231b5ab9.jpg",
+    image: req.file.path,
     creator,
   });
 
@@ -169,6 +167,8 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
+  const imagePath = place.image;
+
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -183,6 +183,11 @@ const deletePlace = async (req, res, next) => {
     );
     return next(error);
   }
+
+  fs.unlink(imagePath, err => {
+    console.log(err)
+  });
+  
   res.status(200).json({ message: "Deleted place." });
 };
 

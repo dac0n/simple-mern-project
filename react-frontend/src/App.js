@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 
 import NewPlace from "./places/pages/NewPlace";
-import User from "./user/pages/Users";
+import Users from "./user/pages/Users";
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
 import UserPlaces from "./places/pages/UserPlaces";
 import UpdatePlace from "./places/pages/UpdatePlace";
@@ -34,9 +34,9 @@ function App() {
     routes = (
       <Switch>
         <Route path="/" exact>
-          <User />
+          <Users />
         </Route>
-        <Route path="/:userId/places">
+        <Route path="/:userId/places" exact>
           <UserPlaces />
         </Route>
         <Route path="/places/new" exact>
@@ -52,9 +52,9 @@ function App() {
     routes = (
       <Switch>
         <Route path="/" exact>
-          <User />
+          <Users />
         </Route>
-        <Route path="/:userId/places">
+        <Route path="/:userId/places" exact>
           <UserPlaces />
         </Route>
         <Route path="/auth">
@@ -76,12 +76,10 @@ function App() {
     >
       <Router>
         <MainNavigation />
-        <main>
-          <Switch>{routes};</Switch>
-        </main>
+        <main>{routes}</main>
       </Router>
     </AuthContext.Provider>
   );
-}
+};
 
 export default App;
