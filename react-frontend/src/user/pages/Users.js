@@ -1,19 +1,33 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import { useHttpClient } from "../../shared/hooks/http-hook";
 import UsersList from "../components/UsersList";
 
 const Users = () => {
-  //some dummy data (temporary)
-  const USERS = [
-    {
-      id: "u1",
-      name: "Dan Konst",
-      image:
-        "https://www.failbettergames.com/wp-content/uploads/2014/05/avatar_male1.png",
-      places: 3
-    },
-  ];
-  return <UsersList items={USERS} />;
+  const {isLoading, error, sendRequest, clearError} = useHttpClient();
+  const [loadedUsers, setLoadedUsers] = useState(false);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const responseData = await sendRequest("http://localhost:5000/api/users");
+        setLoadedUsers(responseData.users);
+      } catch (err) {}
+    };
+    fetchUsers();
+  }, [sendRequest]);
+  return (
+    <React.Fragment>
+      <ErrorModal error={error} onClear={clearError} />
+      {isLoading && (
+        <div className="center">
+          <LoadingSpinner />
+        </div>
+      )}
+      {!isLoading && loadedUsers && <UsersList items={loadedUsers} />}
+    </React.Fragment>
+  );
 };
 
 export default Users;
