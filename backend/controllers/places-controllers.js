@@ -63,7 +63,7 @@ const createPlace = async (req, res, next) => {
     );
     return next(error);
   }
-  const { title, description, address, creator } = req.body;
+  const { title, description, address} = req.body;
 
   let coordinates;
   try {
@@ -71,19 +71,21 @@ const createPlace = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
+
+
   const createdPlace = new Place({
     title,
     description,
     address,
     location: coordinates,
     image: req.file.path,
-    creator,
+    creator: req.userData.userId,
   });
 
   let user;
 
   try {
-    user = await User.findById(creator);
+    user = await User.findById(req.userData.userId);
   } catch (err) {
     const error = new HttpError(
       "Creating place failed, please try again.",
@@ -96,8 +98,6 @@ const createPlace = async (req, res, next) => {
     const error = new HttpError("Could not find user for provided id", 404);
     return next(error);
   }
-
-  console.log(user);
 
   try {
     const sess = await mongoose.startSession();
@@ -133,7 +133,7 @@ const updatePlace = async (req, res, next) => {
     );
     return next(error);
   }
-
+  
   place.title = title;
   place.description = description;
 
@@ -146,8 +146,18 @@ const updatePlace = async (req, res, next) => {
     );
     return next(error);
   }
+
+  if (place.creator.toString() !== req.userData.userId) {
+    const error = new HttpError(
+      'You are not allowed to edit this place', 401
+      );
+    return next(error);
+  }
+
   res.status(200).json({ place: place.toObject({ getters: true }) });
 };
+
+
 
 const deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -167,6 +177,14 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
+  if (place.creator.id !== req.userData.userId) {
+    const error = new HttpError(
+      'You are not allowed to delete this place', 401
+      );
+    return next(error);
+  }
+
+
   const imagePath = place.image;
 
   try {
@@ -183,6 +201,7 @@ const deletePlace = async (req, res, next) => {
     );
     return next(error);
   }
+
 
   fs.unlink(imagePath, err => {
     console.log(err)
