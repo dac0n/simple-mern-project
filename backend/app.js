@@ -43,12 +43,10 @@ app.use((error, req, res, next) => {
   res.status(error.code || 500);
   res.json({ message: error.message || 'An unknown error occurred!' });
 });
-
 mongoose
   .connect(
-    "mongodb+srv://dac0n:placesaccessword@cluster0.jr2vm.mongodb.net/mern?retryWrites=true&w=majority"
-  )
-  .then(() => {
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.jr2vm.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`)
+    .then(() => {
     app.listen(5000);
   })
   .catch(err => {
